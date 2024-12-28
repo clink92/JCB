@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes, useNavigate, Link, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, Link, useLocation } from "react-router-dom";
 import ReactGA from 'react-ga';
 import Slider from "react-slick";
 import Button from "./components/Button";
@@ -114,8 +114,8 @@ export default function App() {
   const [quoteEndDate, setQuoteEndDate] = React.useState("");
   const [quoteLocationDetails, setQuoteLocationDetails] = React.useState(null);
 
-  // Replace with your real phone number
-  const phoneNumber = "0860092550";
+  // Replace with your new phone number
+  const phoneNumber = "0899999999";
 
   // Replace with your Facebook Messenger link
   // e.g., https://m.me/<pageIDOrUsername>
@@ -153,7 +153,7 @@ export default function App() {
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50">
         {/* Fixed Mobile Navigation */}
-        <nav className="sticky top-0 z-50 bg-gradient-to-r from-gray-800 to-gray-700 shadow flex items-center justify-between px-4 py-2 text-white">
+        <nav className="sticky top-0 z-50 bg-gradient-to-r from-yellow-700 to-yellow-600 shadow flex items-center justify-between px-4 py-2 text-white">
           {/* Logo - Always visible */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')} aria-label="Go to Home">
             <span className="text-2xl font-bold text-white">JCB</span>
@@ -181,10 +181,10 @@ export default function App() {
 
           {/* Navigation Links */}
           <div className="flex items-center space-x-4">
-            <Link to="/about" className="text-gray-200 hover:bg-gray-600 px-3 py-2 rounded-md">
+            <Link to="/about" className="text-white hover:bg-yellow-600 px-3 py-2 rounded-md">
               {lang === "th" ? "เกี่ยวกับเรา" : "About Us"}
             </Link>
-            <Link to="/gallery" className="text-gray-200 hover:bg-gray-600 px-3 py-2 rounded-md">
+            <Link to="/gallery" className="text-white hover:bg-yellow-600 px-3 py-2 rounded-md">
               {lang === "th" ? "แกลอรี่" : "Gallery"}
             </Link>
             
@@ -192,14 +192,14 @@ export default function App() {
               <>
                 <Button
                   variant="ghost"
-                  className="text-gray-200 hover:bg-gray-600"
+                  className="text-white hover:bg-yellow-600"
                   onClick={() => navigate('/admin')}
                 >
                   {lang === "th" ? "จัดการคำขอ" : "Manage Quotes"}
                 </Button>
                 <Button
                   variant="ghost"
-                  className="text-gray-200 hover:bg-gray-600"
+                  className="text-white hover:bg-yellow-600"
                   onClick={handleLogout}
                 >
                   {lang === "th" ? "ออกจากระบบ" : "Logout"}
@@ -209,25 +209,25 @@ export default function App() {
 
             <Button
               variant="ghost"
-              className="text-gray-200 hover:bg-gray-600"
+              className="text-white hover:bg-yellow-600"
               onClick={() => setLang(lang === "th" ? "en" : "th")}
             >
               {lang === "th" ? "English" : "ภาษาไทย"}
             </Button>
 
-            {/* Messenger and Phone Number aligned to the right */}
-            <div className="flex items-center space-x-2 ml-auto">
+            {/* Hide phone and messenger links on mobile */}
+            <div className="hidden sm:flex items-center space-x-2">
               <a
                 href={`tel:${phoneNumber}`}
                 onClick={handlePhoneClick}
-                className="flex items-center bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded-md transition-colors"
+                className="contact-button"
                 aria-label={`Call ${phoneNumber}`}
               >
-                <span className="text-white text-xl mr-2" role="img" aria-label="phone">📞</span> {phoneNumber}
+                <span className="mr-2" role="img" aria-label="phone">📞</span> {phoneNumber}
               </a>
 
               <button
-                className="flex items-center bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded-md transition-colors"
+                className="contact-button"
                 onClick={() => window.open(messengerLink, "_blank")}
                 aria-label="Open Messenger"
               >
@@ -246,7 +246,7 @@ export default function App() {
         <div 
           className={`${isMobileMenuOpen ? 'max-h-screen' : 'max-h-0'} sm:hidden overflow-hidden transition-all duration-300`}
         >
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-yellow-600 rounded-b-lg shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-gradient-to-r from-yellow-700 to-yellow-600 rounded-b-lg shadow-lg">
             <Link
               to="/about"
               className="block px-3 py-2 text-white hover:bg-yellow-700 rounded-md"
@@ -287,22 +287,22 @@ export default function App() {
             <a
               href={`tel:${phoneNumber}`}
               onClick={handlePhoneClick}
-              className="block text-yellow-300 bg-white hover:bg-gray-100 px-4 py-2 rounded-md inline-flex items-center font-semibold transition-colors"
+              className="contact-button w-full"
               aria-label={`Call ${phoneNumber}`}
             >
-              <span className="text-yellow-300 text-xl" role="img" aria-label="phone">📞</span> {phoneNumber}
+              <span className="mr-2" role="img" aria-label="phone">📞</span>{phoneNumber}
             </a>
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center px-4 py-2 messenger-link"
+              className="contact-button w-full messenger-link"
               onClick={() => window.open(messengerLink, "_blank")}
               aria-label="Open Messenger"
             >
               <img
                 src="/121580929_1042359612888812_1633869688219687211_n-1 (2).png" // Updated image source
                 alt="Messenger Icon"
-                className="w-6 h-6 mr-2 flex-shrink-0"
+                className="w-5 h-5 mr-2"
               />
-              <span role="img" aria-label="messenger">Messenger</span>
+              <span>Messenger</span>
             </Button>
           </div>
         </div>
@@ -461,14 +461,6 @@ export default function App() {
                 Admin
               </button>
             )}
-            <a
-              href={`tel:${phoneNumber}`}
-              onClick={handlePhoneClick}
-              className="text-blue-600 bg-white hover:bg-gray-100 px-4 py-2 rounded-md inline-flex items-center font-semibold transition-colors text-lg font-bold"
-              aria-label={`Call ${phoneNumber}`}
-            >
-              <span className="text-blue-500 text-xl mr-2" role="img" aria-label="phone">📞</span> {phoneNumber}
-            </a>
           </div>
         </footer>
       </div>

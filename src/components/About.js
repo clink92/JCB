@@ -1,13 +1,22 @@
-import React from 'react';
-// import QRCode from 'react-qr-code';
+import React from "react";
 
 function About({ lang }) {
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-white min-h-screen">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900 text-center">
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
           {lang === "th" ? "เกี่ยวกับเรา" : "About Us"}
         </h2>
+        <p className="text-lg text-gray-600 mb-8">
+          {lang === "th"
+            ? "เราให้บริการเช่ารถแบคโฮ JCB พร้อมคนขับมืออาชีพ ประสบการณ์กว่า 35 ปี"
+            : "We provide JCB backhoe rental services with professional operators. Over 35 years of experience."}
+        </p>
+        <p className="text-lg text-gray-600 mb-8">
+          {lang === "th"
+            ? "โกโก้ JCB ให้เช่า, 24, 19 Vacharapol 4 Alley, Khwaeng Khlong Thanon, Khet Sai Mai, Bangkok 10220, Thailand"
+            : "Koko JCB Rental, 24, 19 Vacharapol 4 Alley, Khwaeng Khlong Thanon, Khet Sai Mai, Bangkok 10220, Thailand"}
+        </p>
         <p className="text-lg text-gray-700 mb-4">
           {lang === "th"
             ? "โกโก้ JCB เป็นผู้นำด้านการให้เช่าเครื่องจักรก่อสร้างด้วยประสบการณ์กว่า 35 ปี เรามุ่งมั่นที่จะให้บริการที่ยอดเยี่ยมแก่ลูกค้าทุกท่าน"
@@ -104,7 +113,7 @@ function About({ lang }) {
           <div className="w-full h-64 sm:h-80 lg:h-96">
             <iframe
               title="Business Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.123456789!2d100.501765!3d13.756331!2m3!1f0!2f0!3f0!3m2!"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3873.095637939509!2d100.64589889999999!3d13.893229300000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d7d505033a333%3A0xc35457bd4ee74b56!2z4LmC4LiB4LmC4LiB4LmJIEpDQiDguYPguKvguYnguYDguIrguYjguLI!5e0!3m2!1sen!2sus!4v1735400962023!5m2!1sen!2sus"
               width="100%"
               height="100%"
               style={{ border: 0 }}

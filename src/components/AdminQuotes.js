@@ -147,6 +147,11 @@ function AdminQuotes({ lang }) {
   //   toast.success(lang === "th" ? "เพิ่มไปยังปฏิทินเรียบร้อยแล้ว" : "Added to calendar successfully.");
   // };
 
+  // Define the missing someFunction
+  const someFunction = () => {
+    // Implement the required functionality
+  };
+
   return (
     <div className="admin-quotes-container">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-center">

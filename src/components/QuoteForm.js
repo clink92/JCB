@@ -2,11 +2,10 @@ import React from "react";
 import Button from "./Button";
 import Input from "./Input";
 import Label from "./Label";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import emailjs from 'emailjs-com';
 
 function QuoteForm({ lang, ...props }) {
   const [errors, setErrors] = React.useState({});
-  const [selectedPlace, setSelectedPlace] = React.useState(null);
 
   // Validation patterns with examples
   const validations = {
@@ -54,7 +53,7 @@ function QuoteForm({ lang, ...props }) {
     return "";
   };
 
-  const handleQuoteSubmit = (e) => {
+  const handleQuoteSubmit = async (e) => {
     e.preventDefault();
 
     // Validate all fields
@@ -68,32 +67,56 @@ function QuoteForm({ lang, ...props }) {
 
     // If no errors, proceed with submission
     if (!Object.values(newErrors).some(error => error)) {
-      const submission = {
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        name: props.quoteName,
-        phone: props.quotePhone,
-        email: props.quoteEmail,
-        service: props.quoteService,
-        projectDate: props.quoteDate,
-        location: props.quoteLocationDetails?.label || '',
-        message: props.quoteMessage,
-        status: 'new',
-        startDate: props.quoteStartDate,
-        endDate: props.quoteEndDate,
-        locationDetails: {
-          label: props.quoteLocationDetails?.label || '',
-          lat: props.quoteLocationDetails?.lat || 0,
-          lng: props.quoteLocationDetails?.lng || 0
-        }
-      };
+      try {
+        // Send email using EmailJS
+        await emailjs.send(
+          'service_uau14xe', // Replace with your EmailJS service ID
+          'quote_request_template', // Replace with your EmailJS template ID
+          {
+            to_email: 'craig.link1@hotmail.com',
+            from_name: props.quoteName,
+            from_email: props.quoteEmail,
+            phone: props.quotePhone,
+            message: props.quoteMessage,
+            service: props.quoteService,
+            start_date: props.quoteStartDate,
+            end_date: props.quoteEndDate,
+            location: props.quoteLocationDetails?.label || ''
+          },
+          'JA5QT5X6YiYX-tt-Y' // Replace with your EmailJS user ID
+        );
 
-      // Save to local storage
-      const existingSubmissions = JSON.parse(localStorage.getItem('quoteSubmissions') || '[]');
-      localStorage.setItem('quoteSubmissions', JSON.stringify([...existingSubmissions, submission]));
+        // Continue with existing submission logic
+        const submission = {
+          id: Date.now(),
+          timestamp: new Date().toISOString(),
+          name: props.quoteName,
+          phone: props.quotePhone,
+          email: props.quoteEmail,
+          service: props.quoteService,
+          projectDate: props.quoteDate,
+          location: props.quoteLocationDetails?.label || '',
+          message: props.quoteMessage,
+          status: 'new',
+          startDate: props.quoteStartDate,
+          endDate: props.quoteEndDate,
+          locationDetails: {
+            label: props.quoteLocationDetails?.label || '',
+            lat: props.quoteLocationDetails?.lat || 0,
+            lng: props.quoteLocationDetails?.lng || 0
+          }
+        };
 
-      props.setQuoteSubmitted(true);
-      setTimeout(props.onSuccess, 2000);
+        // Save to local storage
+        const existingSubmissions = JSON.parse(localStorage.getItem('quoteSubmissions') || '[]');
+        localStorage.setItem('quoteSubmissions', JSON.stringify([...existingSubmissions, submission]));
+
+        props.setQuoteSubmitted(true);
+        setTimeout(props.onSuccess, 2000);
+      } catch (error) {
+        console.error('Failed to send email:', error);
+        // Optionally show error message to user
+      }
     }
   };
 
@@ -102,22 +125,6 @@ function QuoteForm({ lang, ...props }) {
       ...prev,
       [field]: validateField(field, value)
     }));
-  };
-
-  const handlePlaceSelect = (place) => {
-    setSelectedPlace(place);
-    if (props.setQuoteLocationDetails) {
-      const locationLabel = place?.label || '';
-      const coordinates = {
-        lat: place?.value?.geometry?.location?.lat() || 0,  
-        lng: place?.value?.geometry?.location?.lng() || 0
-      };
-      props.setQuoteLocationDetails({
-        label: locationLabel,
-        ...coordinates,
-        raw: place?.value // Store the raw place data
-      });
-    }
   };
 
   return (
@@ -236,29 +243,6 @@ function QuoteForm({ lang, ...props }) {
                 <Label htmlFor="location">
                   {lang === "th" ? "สถานที่โครงการ *" : "Project Location *"}
                 </Label>
-                <div className="google-places-autocomplete">
-                  <GooglePlacesAutocomplete
-                    apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-                    selectProps={{
-                      value: selectedPlace,
-                      onChange: handlePlaceSelect,
-                      placeholder: lang === "th" 
-                        ? "พิมพ์เพื่อค้นหาสถานที่" 
-                        : "Type to search location",
-                      isClearable: true,
-                      styles: {
-                        control: (provided) => ({
-                          ...provided,
-                          borderColor: '#D1D5DB',
-                          borderRadius: '0.375rem',
-                          '&:hover': {
-                            borderColor: '#3B82F6'
-                          }
-                        })
-                      }
-                    }}
-                  />
-                </div>
               </div>
 
               <div>
