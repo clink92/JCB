@@ -1,0 +1,28 @@
+/* Example: Adjust booking details layout on smaller screens */
+@media (max-width: 1024px) {
+  .admin-calendar {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 1rem !important;
+    background-color: #374151; /* Tailwind's gray-700 */
+    color: #f3f4f6; /* Tailwind's gray-100 */
+  }
+}
+
+/* Adjust table layout on smaller screens */
+@media (max-width: 768px) {
+  .admin-calendar {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 1rem !important;
+    background-color: #374151; /* Tailwind's gray-700 */
+    color: #f3f4f6; /* Tailwind's gray-100 */
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-color: #4B5563; /* Tailwind's gray-700 */
+  }
+}

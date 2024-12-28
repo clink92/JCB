@@ -1,0 +1,97 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments for mobile menu transitions */
+@media (max-width: 768px) {
+  .mobile-menu {
+    transition: max-height 0.3s ease-in-out;
+  }
+  section {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+  }
+}
+
+/* Ensure Messenger button doesn't exceed container width on mobile */
+.messenger-link {
+  max-width: 100%;
+  @apply w-full justify-center;
+}
+
+/* Optional: Add transition for smoother appearance */
+.messenger-link {
+  transition: all 0.3s ease;
+}
+
+/* Enhance phone number link */
+a[href^="tel"] {
+  font-size: 1rem; /* Adjusted font size */
+  font-weight: 600; /* Semi-bold text */
+  color: #ffffff; /* White text */
+  background-color: #4B5563; /* Tailwind's gray-700 */
+  padding: 0.5rem 1rem; /* Adjusted padding */
+  border-radius: 0.375rem; /* Rounded corners */
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a[href^="tel"]:hover {
+  background-color: #6B7280; /* Tailwind's gray-600 on hover */
+  color: #ffffff; /* Maintain white text on hover */
+}
+
+a[href^="tel"] span {
+  margin-right: 0.5rem; /* Spacing between icon and number */
+  font-size: 1.25rem; /* Larger phone icon */
+  color: #D1D5DB; /* Tailwind's gray-300 */
+}
+
+/* Unified styling for contact buttons */
+.contact-button {
+  @apply flex items-center bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded-md transition-colors;
+}
+
+.contact-button img {
+  @apply w-5 h-5 mr-2;
+}
+
+.contact-button span {
+  @apply text-white text-sm font-medium;
+}
