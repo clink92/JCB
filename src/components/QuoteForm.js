@@ -3,9 +3,15 @@ import Button from "./Button";
 import Input from "./Input";
 import Label from "./Label";
 import emailjs from 'emailjs-com';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import { useNavigate } from 'react-router-dom'; // Add useNavigate import
+import { db } from "../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 
 function QuoteForm({ lang, ...props }) {
   const [errors, setErrors] = React.useState({});
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const navigate = useNavigate(); // Add navigate hook
 
   // Validation patterns with examples
   const validations = {
@@ -26,7 +32,7 @@ function QuoteForm({ lang, ...props }) {
     email: {
       pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       message: {
-        th: "อีเมลไม่ถูกต้อง เช่น example@email.com",
+        th: "อีเมลไม่��ูกต้อง เช่น example@email.com",
         en: "Invalid email, e.g. example@email.com"
       }
     }
@@ -71,7 +77,7 @@ function QuoteForm({ lang, ...props }) {
         // Send email using EmailJS
         await emailjs.send(
           'service_uau14xe', // Replace with your EmailJS service ID
-          'quote_request_template', // Replace with your EmailJS template ID
+          'template_ujbze1m', // Updated template ID
           {
             to_email: 'craig.link1@hotmail.com',
             from_name: props.quoteName,
@@ -111,8 +117,19 @@ function QuoteForm({ lang, ...props }) {
         const existingSubmissions = JSON.parse(localStorage.getItem('quoteSubmissions') || '[]');
         localStorage.setItem('quoteSubmissions', JSON.stringify([...existingSubmissions, submission]));
 
-        props.setQuoteSubmitted(true);
-        setTimeout(props.onSuccess, 2000);
+        await addDoc(collection(db, "invoices"), {
+          date: new Date().toISOString(),
+          client: props.quoteName,
+          amount: 0,
+          status: "New",
+          // ...include other fields as needed...
+        });
+
+        setShowSuccess(true);
+        setTimeout(() => {
+          props.onSuccess && props.onSuccess();
+          navigate('/admin/invoice-dashboard', { state: { invoiceData: submission } }); // Navigate to invoice dashboard
+        }, 2000);
       } catch (error) {
         console.error('Failed to send email:', error);
         // Optionally show error message to user
@@ -126,6 +143,17 @@ function QuoteForm({ lang, ...props }) {
       [field]: validateField(field, value)
     }));
   };
+
+  if (showSuccess) {
+    return (
+      <div className="flex flex-col items-center mt-8">
+        <div className="text-6xl animate-bounce mb-4">🎉</div>
+        <p className="text-green-600 font-bold">
+          {lang === "th" ? "ส่งใบขอใบเสนอราคาเรียบร้อยแล้ว!" : "Quote submitted successfully!"}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <section className="py-6 sm:py-12 bg-white min-h-screen">
@@ -243,6 +271,19 @@ function QuoteForm({ lang, ...props }) {
                 <Label htmlFor="location">
                   {lang === "th" ? "สถานที่โครงการ *" : "Project Location *"}
                 </Label>
+                <GooglePlacesAutocomplete
+                  apiKey="AIzaSyDD_QvWv7lDHrcihY--Qn2vqMwYW7AIoOQ"
+                  selectProps={{
+                    value: props.quoteLocationDetails,
+                    onChange: (val) => props.setQuoteLocationDetails(val)
+                  }}
+                  options={{
+                    componentRestrictions: { country: 'th' }
+                  }}
+                  autocompletionRequest={{
+                    componentRestrictions: { country: 'th' },
+                  }}
+                />
               </div>
 
               <div>

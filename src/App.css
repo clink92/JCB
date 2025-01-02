@@ -46,6 +46,28 @@
     margin: 0.5rem 0;
     padding: 0.5rem;
   }
+  .messenger-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to the left */
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #4a4a4a;
+    background-color: white;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+  .messenger-link img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px; /* Add margin to the right of the icon */
+  }
+  .messenger-link span {
+    display: inline; /* Ensure the text is displayed */
+  }
+  .messenger-link:hover {
+    background-color: #f0f0f0;
+  }
 }
 
 /* Removed any styles related to the removed location */

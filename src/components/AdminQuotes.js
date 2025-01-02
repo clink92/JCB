@@ -4,6 +4,8 @@ import InvoiceGenerator from './InvoiceGenerator';
 import 'react-toastify/dist/ReactToastify.css';
 import './AdminQuotes.css'; // Import custom styles if needed
 import Button from './Button'; // Import Button from its file
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 // Initialize toast notifications
 
@@ -11,6 +13,7 @@ function AdminQuotes({ lang }) {
   const [quotes, setQuotes] = React.useState([]);
   const [filterStatus, setFilterStatus] = React.useState('all');
   const [sortBy, setSortBy] = React.useState('newest');
+  const [expandedQuoteId, setExpandedQuoteId] = React.useState(null); // Add state for expanded quote
   // Remove Schedule-related state variables
   // const [selectedDate, setSelectedDate] = React.useState("");
   // const [scheduleType, setScheduleType] = React.useState("rental");
@@ -152,6 +155,49 @@ function AdminQuotes({ lang }) {
     // Implement the required functionality
   };
 
+  const toggleDetails = (quoteId) => {
+    setExpandedQuoteId(expandedQuoteId === quoteId ? null : quoteId);
+  };
+
+  const handleConvertToInvoice = async (quote) => {
+    try {
+      await addDoc(collection(db, "invoices"), {
+        // minimally use quote fields
+        client: quote.client,
+        amount: quote.amount,
+        status: "Pending",
+        date: new Date().toISOString(),
+        // ...other relevant data...
+      });
+      alert("Invoice created successfully!");
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+    }
+  };
+
+  const handleAddInvoice = async (invoiceData) => {
+    // Validate that 'client' field is defined
+    if (!invoiceData.client) {
+      console.error("Client field is missing");
+      // Optionally, set a default value or return early
+      invoiceData.client = "Default Client"; // Example default value
+      // Or return to prevent adding the document
+      // return;
+    }
+  
+    try {
+      await addDoc(collection(db, "invoices"), {
+        ...invoiceData,
+        client: invoiceData.client, // Ensure 'client' is not undefined
+        // ...other fields...
+      });
+      // ...existing code...
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      // Handle the error as needed
+    }
+  };
+
   return (
     <div className="admin-quotes-container">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-center">
@@ -182,98 +228,123 @@ function AdminQuotes({ lang }) {
 
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filteredQuotes.length > 0 ? (
-          filteredQuotes.map(quote => (
-            <div key={quote.id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span role="img" aria-label="person" className="text-xl">👤</span>
-                    <h3 className="font-semibold text-lg">{quote.name}</h3>
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <span role="img" aria-label="question" className="text-xl">❓</span>
-                      <p className="font-medium">
-                        {lang === 'th' ? 'คำถาม/ความต้องการ:' : 'Question/Requirements:'}
-                      </p>
-                    </div>
-                    <p className="ml-7">{quote.message || (lang === 'th' ? 'ไม่มีคำถามเพิ่มเติม' : 'No additional questions')}</p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
-                      <div>
-                        <p className="font-medium mb-1">{lang === 'th' ? 'ข้อมูลการติดต่อ' : 'Contact Info'}</p>
-                        <p><span role="img" aria-label="phone">📞</span> {quote.phone}</p>
-                        <p><span role="img" aria-label="email">✉️</span> {quote.email}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium mb-1">{lang === 'th' ? 'รายละเอียดงาน' : 'Job Details'}</p>
-                        <p><span role="img" aria-label="calendar">📅</span> {new Date(quote.startDate).toLocaleDateString()} - {new Date(quote.endDate).toLocaleDateString()}</p>
-                        <p><span role="img" aria-label="location">📍</span> {quote.location}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {getInvoiceForQuote(quote.id) && (
-                    <div className="mt-3 p-3 bg-yellow-50 rounded-md">
-                      <p className="font-medium text-yellow-700">
-                        {lang === 'th' ? 'ใบแจ้งหนี้ที่สร้างแล้ว' : 'Generated Invoice'}
-                      </p>
-                      <p className="text-sm text-yellow-600">
-                        #{getInvoiceForQuote(quote.id).invoiceNumber} - 
-                        {new Date(getInvoiceForQuote(quote.id).generatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <select
-                    className={`border rounded-md px-3 py-2 ${
-                      quote.status === 'completed' ? 'bg-green-50 text-green-600' : ''
-                    }`}
-                    value={quote.status}
-                    onChange={(e) => updateQuoteStatus(quote.id, e.target.value)}
-                  >
-                    {Object.entries(statusOptions).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value[lang]}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      onClick={() => window.open(`tel:${quote.phone}`)}
-                      className="bg-green-500 hover:bg-green-600 text-white px-3"
-                      title={lang === 'th' ? 'โทรหาลูกค้า' : 'Call Customer'}
-                    >
-                      <span role="img" aria-label="phone">📞</span>
-                    </Button>
-                    <Button
-                      onClick={() => window.open(`mailto:${quote.email}`)}
-                      className="bg-gray-600 hover:bg-gray-500 text-white px-3"
-                      title={lang === 'th' ? 'ส่งอีเมล' : 'Send Email'}
-                    >
-                      <span role="img" aria-label="email">✉️</span>
-                    </Button>
-                    <InvoiceGenerator 
-                      quote={quote} 
-                      lang={lang} 
-                      onInvoiceSaved={handleInvoiceSaved}
-                      existingInvoice={getInvoiceForQuote(quote.id)}
-                    />
-                    <Button
-                      onClick={() => handleDeleteQuote(quote.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3"
-                      title={lang === 'th' ? 'ลบ' : 'Delete'}
-                    >
-                      <span role="img" aria-label="delete">🗑️</span>
-                    </Button>
-                  </div>
-                </div>
+          filteredQuotes.map((quote, index) => (
+            <div key={quote.id} className="quote-card bg-white rounded-lg shadow-md p-6">
+              {/* Queue position & status */}
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-lg font-bold">{`#${index + 1}`}</span>
+                <span
+                  className={`status-label ${
+                    quote.status === 'completed' ? 'completed-status' :
+                    quote.status === 'inProgress' ? 'in-progress-status' :
+                    quote.status === 'contacted' ? 'contacted-status' : 'new-status'
+                  }`}
+                  aria-label={`Status: ${quote.status}`}
+                >
+                  {statusOptions[quote.status][lang]}
+                </span>
               </div>
-            </div>
-          ))
+
+              {/* Collapsible section */}
+              <div className="collapsible-section">
+                <div className="flex flex-col sm:flex-row justify-between items-start">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span role="img" aria-label="person" className="text-xl">👤</span>
+                      <h3 className="font-semibold text-lg">{quote.name}</h3>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="section">
+                        <div className="flex items-center gap-2">
+                          <span role="img" aria-label="question" className="text-xl">❓</span>
+                          <p className="label">
+                            {lang === 'th' ? 'คำถาม/ความต้องการ:' : 'Question/Requirements:'}
+                          </p>
+                        </div>
+                        <p className="value">{quote.message || (lang === 'th' ? 'ไม่มีคำถามเพิ่มเติม' : 'No additional questions')}</p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                        <div className="section">
+                          <p className="label">{lang === 'th' ? 'ข้อมูลการติดต่อ' : 'Contact Info'}</p>
+                          <p className="value"><span role="img" aria-label="phone">📞</span> {quote.phone}</p>
+                          <p className="value"><span role="img" aria-label="email">✉️</span> {quote.email}</p>
+                        </div>
+                        <div className="section">
+                          <p className="label">{lang === 'th' ? 'รายละเอียดงาน' : 'Job Details'}</p>
+                          <p className="value"><span role="img" aria-label="calendar">📅</span> {new Date(quote.startDate).toLocaleDateString()} - {new Date(quote.endDate).toLocaleDateString()}</p>
+                          <p className="value"><span role="img" aria-label="location">📍</span> {quote.location}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {getInvoiceForQuote(quote.id) && (
+                      <div className="mt-3 p-3 bg-yellow-50 rounded-md">
+                        <p className="font-medium text-yellow-700">
+                          {lang === 'th' ? 'ใบแจ้งหนี้ที่สร้างแล้ว' : 'Generated Invoice'}
+                        </p>
+                        <p className="text-sm text-yellow-600">
+                          #{getInvoiceForQuote(quote.id).invoiceNumber} - 
+                          {new Date(getInvoiceForQuote(quote.id).generatedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <select
+                      className={`border rounded-md px-3 py-2 ${
+                        quote.status === 'completed' ? 'bg-green-50 text-green-600' : ''
+                      }`}
+                      value={quote.status}
+                      onChange={(e) => updateQuoteStatus(quote.id, e.target.value)}
+                    >
+                      {Object.entries(statusOptions).map(([key, value]) => (
+                        <option key={key} value={key}>
+                          {value[lang]}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        onClick={() => window.open(`mailto:${quote.email}`)}
+                        className="bg-gray-600 hover:bg-gray-500 text-white px-3"
+                        title={lang === 'th' ? 'ส่งอีเมล' : 'Send Email'}
+                      >
+                        <span role="img" aria-label="email">✉️</span>
+                      </Button>
+                      <InvoiceGenerator 
+                        quote={quote} 
+                        lang={lang} 
+                        onInvoiceSaved={handleInvoiceSaved}
+                        existingInvoice={getInvoiceForQuote(quote.id)}
+                      />
+                      <Button
+                        onClick={() => handleDeleteQuote(quote.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3"
+                        title={lang === 'th' ? 'ลบ' : 'Delete'}
+                      >
+                        <span role="img" aria-label="delete">🗑️</span>
+                      </Button>
+                      <Button
+                        onClick={() => handleConvertToInvoice(quote)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded"
+                      >
+                        Convert to Invoice
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={() => toggleDetails(quote.id)}>
+                  {expandedQuoteId === quote.id
+                    ? (lang === 'th' ? 'ซ่อนข้อมูล' : 'Hide Details')
+                    : (lang === 'th' ? 'แสดงเพิ่มเติม' : 'View More')}
+                </Button>
+                {expandedQuoteId === quote.id && (
+                  <div className="extra-details">
+                    {/* Additional or lengthy details can be placed here */}
+                    {/* ...existing code... */}
+                  </div>
+                )}
+              </div>
+            </div>          ))
         ) : (
           <div className="text-center py-12 text-gray-500">
             {lang === 'th' 

@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 import InvoiceGenerator from '../components/InvoiceGenerator';
 import Button from '../components/Button';
 import GoogleMapReact from 'google-map-react'; // Ensure correct import
+import { useNavigate } from 'react-router-dom';
 
 const ManageQuotes = ({ lang }) => {
-  const [quotes, setQuotes] = React.useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    const savedQuotes = JSON.parse(localStorage.getItem('quoteSubmissions') || '[]');
-    setQuotes(savedQuotes);
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      const querySnapshot = await getDocs(collection(db, "quotes"));
+      const quotesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setQuotes(quotesData);
+    };
+
+    fetchQuotes();
   }, []);
 
   const statusOptions = {
@@ -19,7 +28,7 @@ const ManageQuotes = ({ lang }) => {
     cancelled: { th: "ยกเลิก", en: "Cancelled" },
   };
 
-  const [invoices, setInvoices] = React.useState(() =>
+  const [invoices, setInvoices] = useState(() =>
     JSON.parse(localStorage.getItem('storedInvoices') || '{}')
   );
 
@@ -42,7 +51,7 @@ const ManageQuotes = ({ lang }) => {
     localStorage.setItem('quoteSubmissions', JSON.stringify(updatedQuotes));
   };
 
-  const [hoveredQuote, setHoveredQuote] = React.useState(null);
+  const [hoveredQuote, setHoveredQuote] = useState(null);
 
   const MapPreview = ({ lat, lng, label }) => {
     if (!lat || !lng) return null;
@@ -63,7 +72,37 @@ const ManageQuotes = ({ lang }) => {
     );
   };
 
-  const [isNavOpen, setIsNavOpen] = React.useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const generateInvoice = async (quote) => {
+    const invoice = {
+      client: quote.name,
+      date: new Date().toISOString(),
+      paymentDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+      amount: quote.amount,
+      status: 'Pending'
+    };
+
+    await addDoc(collection(db, "invoices"), invoice);
+    alert('Invoice generated successfully!');
+  };
+
+  const handleGenerateInvoice = (quote) => {
+    // Navigate to invoice dashboard with data
+    navigate('/admin/invoice-dashboard', { state: { invoiceData: quote } });
+  };
+
+  const handleCreateInvoice = async (quote) => {
+    await addDoc(collection(db, 'invoices'), {
+      quoteId: quote.id,
+      client: quote.client,
+      amount: quote.amount,
+      date: new Date().toISOString(),
+      status: 'Pending',
+      // ...add other fields as needed...
+    });
+    // ...existing code...
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -241,6 +280,15 @@ const ManageQuotes = ({ lang }) => {
                                 >
                                   <span role="img" aria-label="delete">🗑️</span>
                                 </Button>
+                                <Button
+                                  onClick={() => generateInvoice(quote)}
+                                  className="bg-blue-500 text-white px-3 py-1 rounded"
+                                >
+                                  Generate Invoice
+                                </Button>
+                                <button onClick={() => handleCreateInvoice(quote)}>
+                                  Create Invoice
+                                </button>
                               </div>
                             </>
                           </div>

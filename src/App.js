@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import ReactGA from 'react-ga';
-import Slider from "react-slick";
+import Slider from "react-slick"; // Ensure react-slick is imported
 import Button from "./components/Button";
 import FeatureCard from "./components/FeatureCard";
 import QuoteForm from "./components/QuoteForm";
@@ -10,9 +10,20 @@ import AdminQuotes from "./components/AdminQuotes";
 import About from "./components/About";
 import Gallery from "./components/Gallery";
 import ManageQuotes from './pages/ManageQuotes';
+import Blog from "./pages/Blog";
+import InvoiceDashboard from './components/InvoiceDashboard'; // Import the new component
+import AdminInvoices from "./components/AdminInvoices"; // Import the AdminInvoices component
+import NotFound from './components/NotFound';
 import './App.css'; // Import custom styles if needed
-import "slick-carousel/slick/slick.css"; 
-import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css"; // Ensure slick-carousel CSS is imported
+import "slick-carousel/slick/slick-theme.css"; // Ensure slick-carousel theme CSS is imported
+
+// Move the auth import to the top with other imports
+import { auth } from './firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+
+// Optionally import the initialized app if needed:
+// import { app, analytics } from "./firebaseConfig";
 
 // Initialize Google Analytics
 ReactGA.initialize('UA-XXXXXXXXX-X'); // Replace with your Google Analytics tracking ID
@@ -55,24 +66,24 @@ function TestimonialCarousel({ lang }) {
   const testimonials = [
     {
       quote: {
-        en: "Great service, helped us finish a major construction job on time!",
-        th: "บริการดีเยี่ยม ช่วยให้เราทำงานก่อสร้างขนาดใหญ่เสร็จตรงเวลา!"
+        en: "Great service, quick response, and excellent work. Highly recommended!",
+        th: "บริการดีมากค่ะ ติดต่องานรวดเร็ว ทำงานดีทำงานไว จึ้งมากค่ะคุณน้า"
       },
-      author: "John, ACME Constructions"
+      author: "Toon Chaiklang"
     },
     {
       quote: {
-        en: "Reliable equipment and professional operators. Highly recommend.",
-        th: "อุปกรณ์เชื่อถือได้และผู้ปฏิบัติงานมืออาชีพ แนะนำอย่างยิ่ง"
+        en: "Leveled the land quickly and efficiently. Great advice from Koko.",
+        th: "ปรับหน้าดินที่เปล่าทำงานเรียบร้อย รวดเร็วมากค่ะ คุณก้ก็ให้คำแนะนำดีมากค่ะ"
       },
-      author: "Sarah, BuildRight Corp"
+      author: "Nipatri Pistell"
     },
     {
       quote: {
-        en: "Quick response and excellent support throughout our project.",
-        th: "ตอบสนองรวดเร็วและสนับสนุนดีเยี่ยมตลอดโครงการของเรา"
+        en: "Fast delivery, professional service. Will definitely use again.",
+        th: "ส่งงานเร็ว ไม่ยืดเยื้อ มีความเป็นมืออาชีพมาก คราวหน้าต้องเรียกใช้บริการอีกแน่นอน"
       },
-      author: "Mike, XYZ Contractors"
+      author: "Craig Link"
     }
   ];
 
@@ -115,7 +126,7 @@ export default function App() {
   const [quoteLocationDetails, setQuoteLocationDetails] = React.useState(null);
 
   // Replace with your new phone number
-  const phoneNumber = "0899999999";
+  const phoneNumber = "060092550";
 
   // Replace with your Facebook Messenger link
   // e.g., https://m.me/<pageIDOrUsername>
@@ -148,6 +159,25 @@ export default function App() {
   React.useEffect(() => {
     ReactGA.pageview(location.pathname + location.search);
   }, [location]);
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Check if user has admin claim
+        user.getIdTokenResult().then((idTokenResult) => {
+          if (idTokenResult.claims.admin) {
+            setIsAdmin(true);
+            localStorage.setItem('isAdmin', 'true');
+          }
+        });
+      } else {
+        setIsAdmin(false);
+        localStorage.removeItem('isAdmin');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <ErrorBoundary>
@@ -187,6 +217,9 @@ export default function App() {
             <Link to="/gallery" className="text-white hover:bg-yellow-600 px-3 py-2 rounded-md">
               {lang === "th" ? "แกลอรี่" : "Gallery"}
             </Link>
+            <Link to="/blog" className="text-white hover:bg-yellow-600 px-3 py-2 rounded-md">
+              {lang === "th" ? "บล็อก" : "Blog"}
+            </Link>
             
             {isAdmin && (
               <>
@@ -196,6 +229,13 @@ export default function App() {
                   onClick={() => navigate('/admin')}
                 >
                   {lang === "th" ? "จัดการคำขอ" : "Manage Quotes"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:bg-yellow-600"
+                  onClick={() => navigate('/admin/invoice-dashboard')}
+                >
+                  {lang === "th" ? "แดชบอร์ดใบแจ้งหนี้" : "Invoice Dashboard"}
                 </Button>
                 <Button
                   variant="ghost"
@@ -257,6 +297,9 @@ export default function App() {
             <Link to="/gallery" className="block text-white px-4 py-2">
               {lang === "th" ? "แกลอรี่" : "Gallery"}
             </Link>
+            <Link to="/blog" className="block text-white px-4 py-2">
+              {lang === "th" ? "บล็อก" : "Blog"}
+            </Link>
             {isAdmin && (
               <>
                 <Button
@@ -265,6 +308,13 @@ export default function App() {
                   onClick={() => navigate('/admin')}
                 >
                   {lang === "th" ? "จัดการคำขอ" : "Manage Quotes"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full text-left text-white hover:bg-yellow-700 px-4 py-2"
+                  onClick={() => navigate('/admin/invoice-dashboard')}
+                >
+                  {lang === "th" ? "แดชบอร์ดใบแจ้งหนี้" : "Invoice Dashboard"}
                 </Button>
                 <Button
                   variant="ghost"
@@ -290,7 +340,7 @@ export default function App() {
               className="contact-button w-full"
               aria-label={`Call ${phoneNumber}`}
             >
-              <span className="mr-2" role="img" aria-label="phone">📞</span>{phoneNumber}
+              <span className="mr-2" role="img" aria-label="phone">📞</span>
             </a>
             <Button
               className="contact-button w-full messenger-link"
@@ -300,7 +350,7 @@ export default function App() {
               <img
                 src="/121580929_1042359612888812_1633869688219687211_n-1 (2).png" // Updated image source
                 alt="Messenger Icon"
-                className="w-5 h-5 mr-2"
+                className="w-5 h-5" // Removed "mr-2"
               />
               <span>Messenger</span>
             </Button>
@@ -355,11 +405,14 @@ export default function App() {
             <Route path="/about" element={<About lang={lang} />} />
             <Route path="/gallery" element={<Gallery lang={lang} />} />
             <Route path="/manage-quotes" element={<ManageQuotes lang={lang} />} />
+            <Route path="/blog" element={<Blog lang={lang} />} />
             
             {isAdmin && (
               // Admin-only routes
               <>
-                {/* <Route path="/additional-admin-route" element={<AdditionalAdminComponent />} /> */}
+                <Route path="/admin" element={<AdminQuotes lang={lang} />} />
+                <Route path="/admin/invoice-dashboard" element={<InvoiceDashboard />} />
+                <Route path="/admin/invoices" element={<AdminInvoices />} />
               </>
             )}
 
@@ -404,7 +457,7 @@ export default function App() {
                   </section>
                   <section className="py-12 bg-gray-50">
                     <div className="max-w-6xl mx-auto px-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         {[
                           {
                             icon: "🚜",
@@ -430,6 +483,14 @@ export default function App() {
                                 ? "รับงานก่อสร้างครบวงจร"
                                 : "Complete construction services",
                           },
+                          {
+                            icon: "⚙️",
+                            title: lang === "th" ? "การบำรุงรักษาและการซ่อมแซม" : "Parts Maintenance & Repair",
+                            desc:
+                              lang === "th"
+                                ? "การบำรุงรักษาและการซ่อมแซมยานพาหนะก่อสร้าง"
+                                : "Maintenance and repair for construction vehicles",
+                          },
                         ].map((feature, idx) => (
                           <FeatureCard key={idx} {...feature} />
                         ))}
@@ -440,6 +501,7 @@ export default function App() {
                 </>
               }
             />
+            <Route path="*" element={<NotFound lang={lang} />} />
           </Routes>
         </main>
 
@@ -456,7 +518,7 @@ export default function App() {
             {!isAdmin && (
               <button
                 onClick={() => navigate('/login')}
-                className="mt-4 text-sm text-gray-500 hover:text-gray-400"
+                className="mt-4 bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded-md text-sm"
               >
                 Admin
               </button>

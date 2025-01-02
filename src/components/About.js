@@ -7,16 +7,6 @@ function About({ lang }) {
         <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
           {lang === "th" ? "เกี่ยวกับเรา" : "About Us"}
         </h2>
-        <p className="text-lg text-gray-600 mb-8">
-          {lang === "th"
-            ? "เราให้บริการเช่ารถแบคโฮ JCB พร้อมคนขับมืออาชีพ ประสบการณ์กว่า 35 ปี"
-            : "We provide JCB backhoe rental services with professional operators. Over 35 years of experience."}
-        </p>
-        <p className="text-lg text-gray-600 mb-8">
-          {lang === "th"
-            ? "โกโก้ JCB ให้เช่า, 24, 19 Vacharapol 4 Alley, Khwaeng Khlong Thanon, Khet Sai Mai, Bangkok 10220, Thailand"
-            : "Koko JCB Rental, 24, 19 Vacharapol 4 Alley, Khwaeng Khlong Thanon, Khet Sai Mai, Bangkok 10220, Thailand"}
-        </p>
         <p className="text-lg text-gray-700 mb-4">
           {lang === "th"
             ? "โกโก้ JCB เป็นผู้นำด้านการให้เช่าเครื่องจักรก่อสร้างด้วยประสบการณ์กว่า 35 ปี เรามุ่งมั่นที่จะให้บริการที่ยอดเยี่ยมแก่ลูกค้าทุกท่าน"

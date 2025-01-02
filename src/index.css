@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 @tailwind base;
@@ -9,6 +10,10 @@
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
   /* Use Tailwind's font family utilities instead of custom ones */
@@ -171,6 +176,7 @@ code {
   .messenger-link {
     font-size: 14px;
     padding: 8px 12px;
+    justify-content: flex-start;
   }
   
   .messenger-link img {
@@ -192,7 +198,7 @@ code {
   .messenger-link {
     font-size: 14px;
     padding: 8px 12px;
-    justify-content: center;
+    justify-content: flex-start;
   }
   
   .messenger-link img {
@@ -220,6 +226,7 @@ code {
   .messenger-link {
     font-size: 14px;
     padding: 8px 12px;
+    justify-content: flex-start;
   }
   .messenger-link img {
     width: 20px;
@@ -233,6 +240,16 @@ code {
   }
   .messenger-link img {
     margin-right: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding: 0 0.5rem; /* More comfortable padding on very small screens */
+  }
+  .container {
+    width: 100%; 
+    margin: 0 auto;
   }
 }
 
@@ -267,6 +284,7 @@ code {
 
 .messenger-link {
   color: #4a4a4a; /* Darker color for better readability */
+  justify-content: flex-start;
 }
 /* Unified contact button styles if not using Tailwind utilities */
 @layer utilities {

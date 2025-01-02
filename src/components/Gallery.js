@@ -23,7 +23,7 @@ const Gallery = ({ lang }) => {
 
   return (
     <section className="py-12 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 gallery-container">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">
           {lang === 'th' ? 'แกลอรี่' : 'Gallery'}
         </h2>
